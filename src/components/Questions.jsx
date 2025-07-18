@@ -1,30 +1,57 @@
 import QuestionTimer from "./QuestionTimer.jsx";
 import Answers from "./Answers.jsx";
+import {useState} from "react";
+import QUESTIONS from "../questions.js";
 
 export default function Questions({
-                                      questionText,
-                                      answers,
+                                      index,
                                       onSelectAnswer,
-                                      selectedAnswer,
-                                      answerState,
                                       onSkipAnswer,
-                                      activeQuestionIndex
                                   }) {
+    const [answer, setAnswer] = useState({
+        selectedAnswer: '',
+        isCorrect: null
+    });
+
+    function handleSelectAnswer(answer) {
+        setAnswer({
+            selectedAnswer: answer,
+            isCorrect: null
+        })
+
+        setTimeout(() => {
+            setAnswer({
+                selectedAnswer: answer,
+                isCorrect: QUESTIONS[index].answers[0] === answer
+            })
+
+            setTimeout(() => {
+                onSelectAnswer(answer)
+            }, 2000)
+        }, 1000);
+    }
+
+    let answerState = '';
+
+    if (answer.selectedAnswer && answer.isCorrect !== null) {
+        answerState = answer.isCorrect ? 'correct' : 'wrong';
+    } else if (answer.selectedAnswer) {
+        answerState = 'answered'
+    }
+
     return (
         <div id="question">
             <QuestionTimer
-                key={activeQuestionIndex}
                 timeout={10000}
                 onTimeout={onSkipAnswer}/>
             <h2>
-                {questionText}
-            </h2>ф
+                {QUESTIONS[index].text}
+            </h2>
             <Answers
-                key={activeQuestionIndex}
-                answers={answers}
-                selectedAnswer={selectedAnswer}
+                answers={QUESTIONS[index].answers}
+                selectedAnswer={answer.selectedAnswer}
                 answersState={answerState}
-                onSelect={onSelectAnswer}
+                onSelect={handleSelectAnswer}
             />
         </div>
     )
